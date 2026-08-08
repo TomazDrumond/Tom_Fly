@@ -1,1 +1,441 @@
-PASTE-YOUR-DEPLOYED-PAPER-URL-HERE
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading the Refresh Queue — Content Opportunity Scoring on Search Console Signals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF9F4;
+    --ink:#1B1F3B;
+    --rule:#C9C2B0;
+    --amber:#E2A33D;
+    --teal:#2E6E62;
+    --muted:#6B7280;
+    --paper-2:#F3EFE4;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Public Sans', sans-serif;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--amber); color:var(--ink); }
+
+  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:600; margin:0; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  a{ color:var(--ink); }
+
+  .wrap{ max-width:760px; margin:0 auto; padding:0 24px; }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    padding:96px 0 64px;
+    border-bottom:1px solid var(--rule);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:20px;
+  }
+  h1.title{
+    font-size:clamp(34px, 5vw, 52px);
+    line-height:1.08;
+    font-optical-sizing:auto;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    margin-top:22px;
+    font-size:19px;
+    color:var(--muted);
+    max-width:56ch;
+  }
+  .meta-row{
+    margin-top:36px;
+    display:flex;
+    gap:28px;
+    flex-wrap:wrap;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .meta-row span b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- STAMP (signature element) ---------- */
+  .stamp{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border:1.5px solid currentColor;
+    border-radius:3px;
+    transform:rotate(-1.4deg);
+    white-space:nowrap;
+  }
+  .stamp.confirmed{ color:var(--teal); }
+  .stamp.mixed{ color:var(--amber); }
+  .stamp::before{ content:"◆"; font-size:9px; }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding:56px 0; border-bottom:1px solid var(--rule); }
+  section:last-of-type{ border-bottom:none; }
+
+  .sec-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--amber);
+    letter-spacing:.06em;
+    margin-bottom:10px;
+  }
+  h2.sec-title{ font-size:28px; margin-bottom:22px; }
+  h3.sub-title{ font-size:19px; margin:30px 0 12px; }
+
+  p{ margin:0 0 16px; }
+  ul, ol{ margin:0 0 16px; padding-left:22px; }
+  li{ margin-bottom:8px; }
+
+  code, .inline-mono{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.9em;
+    background:var(--paper-2);
+    padding:1px 5px;
+    border-radius:3px;
+  }
+
+  blockquote{
+    margin:24px 0;
+    padding:2px 0 2px 20px;
+    border-left:3px solid var(--amber);
+    color:var(--muted);
+    font-style:italic;
+  }
+
+  /* ---------- TABLE ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:20px 0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+  }
+  th, td{
+    text-align:left;
+    padding:10px 12px;
+    border-bottom:1px solid var(--rule);
+  }
+  th{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--muted);
+    font-weight:600;
+  }
+  tr.win td{ color:var(--teal); font-weight:600; }
+
+  /* ---------- BAR CHART (pure CSS) ---------- */
+  .chart{ margin:28px 0 8px; }
+  .chart-title{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--muted); margin-bottom:14px; }
+  .bar-group{ margin-bottom:22px; }
+  .bar-group-label{ font-family:'IBM Plex Mono', monospace; font-size:13px; margin-bottom:8px; color:var(--ink); font-weight:600; }
+  .bar-row{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .bar-name{ width:150px; flex-shrink:0; font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--muted); }
+  .bar-track{ flex:1; background:var(--paper-2); border-radius:2px; height:22px; position:relative; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:2px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; }
+  .bar-fill.baseline{ background:var(--muted); }
+  .bar-fill.model{ background:var(--teal); }
+  .bar-fill span{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--paper); font-weight:600; }
+
+  /* ---------- CARDS ---------- */
+  .card{
+    background:var(--paper-2);
+    border:1px solid var(--rule);
+    border-radius:6px;
+    padding:20px 22px;
+    margin:18px 0;
+  }
+  .card h4{ font-family:'IBM Plex Mono', monospace; font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--amber); margin:0 0 10px; }
+
+  .reason-code{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    background:var(--ink);
+    color:var(--paper);
+    padding:2px 8px;
+    border-radius:3px;
+    margin:2px 4px 2px 0;
+  }
+
+  /* ---------- RECOMMENDATIONS TABLE ---------- */
+  .playbook{ display:grid; gap:14px; margin:20px 0; }
+  .playbook-row{
+    display:grid;
+    grid-template-columns:120px 1fr;
+    gap:16px;
+    padding:14px 0;
+    border-bottom:1px solid var(--rule);
+    align-items:start;
+  }
+  .playbook-row .action{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--teal);
+    text-transform:uppercase;
+    letter-spacing:.02em;
+    padding-top:2px;
+  }
+
+  footer{
+    padding:56px 0 96px;
+    text-align:center;
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+  }
+  footer a{ color:var(--teal); }
+
+  @media (max-width:600px){
+    header.hero{ padding:64px 0 40px; }
+    .meta-row{ gap:16px; }
+    .playbook-row{ grid-template-columns:1fr; gap:4px; }
+    .bar-name{ width:110px; font-size:11px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+  }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:2px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">FlyRank ML Internship — Capstone Research Paper</div>
+    <h1 class="title">Reading the Refresh Queue</h1>
+    <p class="subtitle">Scoring content refresh opportunity from Search Console signals — and why a hand-written rule and a forward-looking model disagree about which pages matter most.</p>
+    <div class="meta-row">
+      <span>Author: <b>Tomaz Drumond</b></span>
+      <span>Lane: <b>Refresh / Content Opportunity Scoring</b></span>
+      <span>Data window: <b>March–April 2026</b></span>
+    </div>
+  </div>
+</header>
+
+<section id="abstract">
+  <div class="wrap">
+    <div class="sec-label">01</div>
+    <h2 class="sec-title">Abstract</h2>
+    <p>Content teams cannot manually review every page in a large site, so this project asks which pages deserve refresh attention first. A transparent baseline rule — pages with meaningful search volume but underperforming click-through relative to their ranking position — was built and hand-audited against two real signals from FlyRank's production flags. A Logistic Regression model was then trained on the same March 2026 features to predict a genuinely forward-looking outcome: whether a page's click-through rate would decline into April. Evaluated on a client-holdout split, the model beat the baseline at both Precision@20 (0.55 vs. 0.50) and Precision@50 (0.70 vs. 0.54). The model's error pattern reveals a specific blind spot — it under-detects decline in already low-ranked pages that lose visibility entirely, rather than merely converting worse — which the ranked recommendations below are built to account for.</p>
+  </div>
+</section>
+
+<section id="intro">
+  <div class="wrap">
+    <div class="sec-label">02</div>
+    <h2 class="sec-title">Introduction</h2>
+    <p>The decision this work supports is narrow and concrete: <b>which pages should a content reviewer look at first, this cycle, out of far more pages than they have time to check by hand.</b> The action a reviewer takes on a flagged page is to refresh, expand, protect, prune, or monitor it. A wrong call has a real cost in both directions — a false positive spends limited review time on a page that wasn't actually a priority, while a false negative lets a real decliner keep losing visibility unreviewed, uncaught until the next review cycle.</p>
+    <p>With thousands of pages and one reviewer's limited capacity, a ranked queue with transparent reason codes gets the right pages in front of a human far faster and more consistently than manual triage — this is decision-support, not automation. Nothing in this paper claims to predict how Google's ranking algorithm works, or that refreshing a flagged page will causally improve it; the claim is narrower and more defensible: which pages are statistically more likely to need attention, based on patterns observed in past data.</p>
+  </div>
+</section>
+
+<section id="data">
+  <div class="wrap">
+    <div class="sec-label">03</div>
+    <h2 class="sec-title">Data</h2>
+    <p>All data comes from the <span class="inline-mono">FlyRank/internship-warehouse</span> release on Hugging Face — a monthly-partitioned warehouse of Search Console performance joined against content and client dimension tables. Three tables were used:</p>
+    <ul>
+      <li><span class="inline-mono">fact_content_daily_performance</span> — daily page-level GSC metrics, partitioned by month. Two partitions were used: <span class="inline-mono">month=2026-03</span> (features) and <span class="inline-mono">month=2026-04</span> (label window).</li>
+      <li><span class="inline-mono">dim_content</span> — static page attributes (word count, content type).</li>
+      <li><span class="inline-mono">dim_clients</span> — client-level access and history metadata, used to build the availability filter.</li>
+    </ul>
+    <h3 class="sub-title">What was excluded, and why</h3>
+    <ul>
+      <li><span class="inline-mono">fact_content_query_90d</span> — its fixed 90-day window (Apr–Jun 2026) overlaps the sealed test month, creating leakage risk for any feature developed during this iteration phase.</li>
+      <li><span class="inline-mono">*_sample</span> table — this is not a random sample; it is exactly the sealed final month (June 2026), reserved as a held-out test period and never used to develop label logic.</li>
+      <li><span class="inline-mono">dim_content.content_updated_date</span> — discovered during data-contract verification to be a <em>current extract</em>, not a point-in-time March snapshot: 84% of rows showed an "update" date after the March snapshot date, producing impossible negative day-counts. Staleness was dropped from every score in this paper as a result.</li>
+      <li>GA4 engagement fields — adoption varies per client (<span class="inline-mono">ga4_data_start</span> differs across the panel), and naive inclusion would silently treat "no data yet" as "zero engagement." Deferred to future work.</li>
+    </ul>
+    <h3 class="sub-title">Coverage limitation</h3>
+    <p>Only 36.7% of the March daily-performance rows have <span class="inline-mono">gsc_data_available IS TRUE</span>. Per-client coverage is highly uneven: of 55 clients, 8 have 0% GSC availability in March and none have 100% — the median client sits at only 8% availability. Every result in this paper implicitly reflects the higher-coverage subset of the panel, not the full client base, and that should be read as a real constraint on generalization, not a footnote.</p>
+  </div>
+</section>
+
+<section id="methodology">
+  <div class="wrap">
+    <div class="sec-label">04</div>
+    <h2 class="sec-title">Methodology</h2>
+
+    <h3 class="sub-title">Signal verification</h3>
+    <p>Before encoding any rule, two signals behind FlyRank's real production flags were checked against the data directly.</p>
+
+    <div class="card">
+      <h4>Signal 1 — Staleness vs. CTR</h4>
+      <p><span class="stamp mixed">Mixed</span></p>
+      <p>No pages in this slice are older than 365 days, and CTR does not decline cleanly with age — it spikes at 90–180 days (0.0201) before dropping at 180–365 days (0.0022), contradicting the refresh flag's "older content underperforms" assumption. Given the small sample in those buckets (n=1,325 and n=261), staleness was excluded from the final rule entirely, reinforced by the <span class="inline-mono">content_updated_date</span> data-quality issue found in Section 3.</p>
+    </div>
+
+    <div class="card">
+      <h4>Signal 2 — Position vs. CTR</h4>
+      <p><span class="stamp confirmed">Confirmed</span></p>
+      <p>CTR falls steadily and substantially as position worsens — 0.0106 at positions 1–3, down to 0.0019 at position 20+ — backed by large samples throughout (16k–82k rows per bucket). This is the reliable signal the baseline rule leans on.</p>
+    </div>
+
+    <h3 class="sub-title">Baseline rule</h3>
+    <p>A page is worth reviewing if it has meaningful search volume (100+ impressions in the month) but a click-through rate below the mean CTR of other meaningful-volume pages at the same position tier — meaning the problem is the page itself, not its ranking. Reason code: <span class="reason-code">underperforming_ctr</span>. Action: <span class="reason-code">review_for_refresh</span>.</p>
+
+    <h3 class="sub-title">Label definition</h3>
+    <p>The baseline's CTR-underperformance rule is a same-window comparison — useful as a rule, but not a fair supervised target, since it cannot say anything a reviewer couldn't already see by looking at March data directly. The model instead predicts a genuinely forward-looking outcome: <b>whether a page's CTR is lower in April than it was in March</b>, trained only on March features. This is a real prediction task rather than a restatement of the present.</p>
+
+    <h3 class="sub-title">Validation design</h3>
+    <p>The panel (100,893 page-months across 43 clients, visible in both March and April with meaningful March volume) was split by <b>client</b>, not by row — 30 clients in train, 13 in test, with zero client overlap. A random row-level split would let the model learn client-specific quirks rather than a generalizable pattern; a prior held-out experiment on this same lane showed exactly that gap (in-sample Precision@20 of 0.550 dropped to 0.400 on a genuine client-holdout). Train and test declining rates were close (0.443 vs. 0.438), confirming the split is representative rather than accidentally skewed.</p>
+
+    <p>Method: Logistic Regression, evaluated via Precision@K — the metric fits a ranking problem ("which pages first"), not plain classification. Simplicity was chosen deliberately: a readable model that clearly beat the baseline made a stronger comparison than reaching for Random Forest or Gradient Boosting without first showing the simple version earns its complexity.</p>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-label">05</div>
+    <h2 class="sec-title">Results</h2>
+    <p>Evaluated on the held-out test clients, base rate 0.438:</p>
+
+    <table>
+      <thead>
+        <tr><th>Method</th><th>K</th><th>Precision@K</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Week-4 baseline rule</td><td>20</td><td>0.50</td></tr>
+        <tr class="win"><td>Logistic Regression</td><td>20</td><td>0.55</td></tr>
+        <tr><td>Week-4 baseline rule</td><td>50</td><td>0.54</td></tr>
+        <tr class="win"><td>Logistic Regression</td><td>50</td><td>0.70</td></tr>
+      </tbody>
+    </table>
+
+    <div class="chart">
+      <div class="chart-title">Precision@K — baseline vs. model (test-set, base rate 0.438)</div>
+      <div class="bar-group">
+        <div class="bar-group-label">Precision@20</div>
+        <div class="bar-row">
+          <div class="bar-name">Baseline rule</div>
+          <div class="bar-track"><div class="bar-fill baseline" style="width:71.4%"><span>0.50</span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-name">Logistic Reg.</div>
+          <div class="bar-track"><div class="bar-fill model" style="width:78.6%"><span>0.55</span></div></div>
+        </div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-group-label">Precision@50</div>
+        <div class="bar-row">
+          <div class="bar-name">Baseline rule</div>
+          <div class="bar-track"><div class="bar-fill baseline" style="width:77.1%"><span>0.54</span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-name">Logistic Reg.</div>
+          <div class="bar-track"><div class="bar-fill model" style="width:100%"><span>0.70</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <p>The gap widens at K=50 rather than narrowing — the model isn't only better at the very top of the queue, it holds up further down the list, which matters in practice since a reviewer working through a real queue goes well past the top 20.</p>
+
+    <h3 class="sub-title">What the model leans on</h3>
+    <div class="chart">
+      <div class="chart-title">Permutation importance (AUC drop when shuffled)</div>
+      <div class="bar-row"><div class="bar-name">ctr_march</div><div class="bar-track"><div class="bar-fill model" style="width:100%"><span>0.113</span></div></div></div>
+      <div class="bar-row"><div class="bar-name">avg_position_march</div><div class="bar-track"><div class="bar-fill model" style="width:55.7%"><span>0.063</span></div></div></div>
+      <div class="bar-row"><div class="bar-name">impressions_march</div><div class="bar-track"><div class="bar-fill model" style="width:15.2%"><span>0.017</span></div></div></div>
+      <div class="bar-row"><div class="bar-name">word_count</div><div class="bar-track"><div class="bar-fill model" style="width:3.5%"><span>0.004</span></div></div></div>
+    </div>
+    <p><span class="inline-mono">ctr_march</span> dominates both the coefficient magnitude and permutation importance, and the two rankings agree — a consistency check against the model having simply memorized noise. The direction makes sense as a ceiling effect: a page already converting well has more room to fall than one already near zero.</p>
+
+    <h3 class="sub-title">Error analysis</h3>
+    <p>False negatives (3,920) outnumber false positives (2,069) roughly 2:1 — the model is more prone to <em>missing</em> real decliners than to over-flagging healthy pages. The clearest failure pattern: high-volume, top-position pages with strong March CTR were flagged as near-certain decliners (score ≈ 1.0) purely on the ceiling-effect logic, when April CTR actually held flat. Conversely, low-volume pages already ranked poorly (position 80–90+) were scored as low-risk, then collapsed to zero clicks in April — a real blind spot, since the model treats low CTR as a floor rather than accounting for a page losing visibility entirely.</p>
+  </div>
+</section>
+
+<section id="limitations">
+  <div class="wrap">
+    <div class="sec-label">06</div>
+    <h2 class="sec-title">Limitations & honest framing</h2>
+    <ul>
+      <li>This is <b>observed, decision-support</b> ranking, not a causal claim — nothing here proves that refreshing a flagged page will improve its performance, only that similar past pages showed decline.</li>
+      <li>The label (CTR decline, March→April) is a <b>proxy</b> for "needs a refresh," not the true outcome of refreshing a page.</li>
+      <li>Results reflect the <b>higher-GSC-coverage subset</b> of a 55-client panel, not the full client base (Section 3).</li>
+      <li>Evaluated on a <b>single month-to-month transition</b> (March→April); performance on other transitions or seasons is untested.</li>
+      <li>This does not reproduce, predict, or reverse-engineer Google's ranking algorithm.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="recommendations">
+  <div class="wrap">
+    <div class="sec-label">07</div>
+    <h2 class="sec-title">Ranked recommendations</h2>
+    <p>An action playbook translating the model's output into review guidance:</p>
+    <div class="playbook">
+      <div class="playbook-row">
+        <div class="action">Review first</div>
+        <div>Pages the model scores highly <em>and</em> that already rank well (position ≤ 10) with real volume — these carry the clearest, most reliable signal and the largest absolute upside if fixed.</div>
+      </div>
+      <div class="playbook-row">
+        <div class="action">Double-check</div>
+        <div>Low-ranked pages (position 80+) with low but nonzero March CTR — the model under-flags these (Section 5's largest error pattern). Add a manual visibility check rather than trusting the model score alone.</div>
+      </div>
+      <div class="playbook-row">
+        <div class="action">Deprioritize</div>
+        <div>High-volume, high-CTR, top-position pages flagged with near-certain scores from the ceiling effect alone — verify against actual April data before spending review time, since this is the model's most common false-positive pattern.</div>
+      </div>
+      <div class="playbook-row">
+        <div class="action">Monitor only</div>
+        <div>Pages from clients with low GSC availability in the source data (Section 3) — treat any score for these as low-confidence until coverage improves.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="reproducibility">
+  <div class="wrap">
+    <div class="sec-label">08</div>
+    <h2 class="sec-title">Reproducibility</h2>
+    <p>All notebooks are versioned in the accompanying repository:</p>
+    <ul>
+      <li><span class="inline-mono">work/notebooks/w01_research_question.ipynb</span> — lane framing</li>
+      <li><span class="inline-mono">work/notebooks/w02_ml_task_framing.ipynb</span> — ML task type, target, metric</li>
+      <li><span class="inline-mono">work/notebooks/w03_data_contract.ipynb</span> — data contract, verification queries, five-feature frame, leakage trap</li>
+      <li><span class="inline-mono">work/notebooks/w04_baseline_score.ipynb</span> — signal audit, baseline rule, ranked queue, top-20 review</li>
+      <li><span class="inline-mono">work/notebooks/w05_model.ipynb</span> — Logistic Regression, grouped split, comparison table, error analysis</li>
+    </ul>
+    <p>Repository: <a href="#" class="inline-mono">[ADD YOUR REPO URL HERE]</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Built on the FlyRank ML Internship dataset — <a href="https://flyrank.ai" target="_blank" rel="noopener">flyrank.ai</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
