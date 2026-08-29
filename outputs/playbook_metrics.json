@@ -1,0 +1,27 @@
+{
+  "model": "Logistic Regression",
+  "split_type": "grouped_by_client",
+  "baseline_precision_at_20": 0.5,
+  "model_precision_at_20": 0.55,
+  "baseline_precision_at_50": 0.54,
+  "model_precision_at_50": 0.7,
+  "test_base_rate": 0.438,
+  "base_rate_declining": 0.442,
+  "median_risk_score": 0.457,
+  "n_clients_in_training_panel": 43,
+  "clients_with_flagged_pages": 29,
+  "precision_at_20_grouped_holdout": 0.55,
+  "precision_at_50_grouped_holdout": 0.7,
+  "action_distribution": {
+    "routine_monitor": 83430,
+    "protect_as_is": 14507,
+    "review_for_refresh": 2609,
+    "monitor_closely": 347
+  },
+  "reason_code_distribution": {
+    "elevated_decline_risk": 38218,
+    "poor_position_visibility_risk": 23962,
+    "low_volume_low_confidence": 21121,
+    "strong_march_ctr_at_risk_of_reverting": 17592
+  }
+}
